@@ -141,7 +141,7 @@
         "Tags": [
           {
             "Key": "Name", 
-            "Value": "Nat1"
+            "Value": { "Fn::Join" : [ "", [ "Nat1: ", {"Ref":"AvailabilityZone1"}]]}
           }
         ]
       }, 
@@ -177,7 +177,7 @@
         "Tags": [
           {
             "Key": "Name", 
-            "Value": "Nat2"
+            "Value": { "Fn::Join" : [ "", [ "Nat2: ", {"Ref":"AvailabilityZone2"}]]}
           }
         ]
       }, 

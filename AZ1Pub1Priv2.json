@@ -116,7 +116,7 @@
         "Tags": [
           {
             "Key": "Name", 
-            "Value": "Nat1"
+            "Value": { "Fn::Join" : [ "", [ "Nat1: ", {"Ref":"AvailabilityZone1"}]]}
           }
         ]
       }, 

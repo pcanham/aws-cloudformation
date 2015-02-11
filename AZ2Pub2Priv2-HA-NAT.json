@@ -1,5 +1,5 @@
 {
-  "Description": "2AZ2Pub2Priv", 
+  "Description": "AZ2Pub2Priv2-HA-NAT", 
   "Mappings": {
     "NatAmi": {
       "ap-northeast-1": {
@@ -82,12 +82,54 @@
         "m3.xlarge"
       ], 
       "ConstraintDescription": "Instance type must be of a valid EC2 type", 
-      "Default": "m1.small", 
+      "Default": "t2.micro", 
       "Description": "EC2 instance type for NAT instances", 
       "Type": "String"
     }
   }, 
   "Resources": {
+    "NATRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [ {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [ "ec2.amazonaws.com" ]
+            },
+            "Action": [ "sts:AssumeRole" ]
+          } ]
+        },
+        "Path": "/",
+        "Policies": [ {
+        "PolicyName": "NAT_Takeover",
+        "PolicyDocument": {
+          "Statement": [ {
+            "Effect": "Allow",
+            "Action": [
+                        "ec2:DescribeInstances",
+                        "ec2:DescribeRouteTables",
+                        "ec2:CreateRoute",
+                        "ec2:ReplaceRoute",
+                        "ec2:StartInstances",
+                        "ec2:StopInstances"
+                   ],
+                   "Effect": "Allow",
+                   "Resource": "*"
+                } ]
+             }
+             } ]
+        }
+    },
+    "NATRoleProfile": {
+       "Type": "AWS::IAM::InstanceProfile",
+       "Properties": {
+          "Path": "/",
+          "Roles": [ {
+             "Ref": "NATRole"
+          } ]
+       }
+    },
     "InternetGateway": {
       "Type": "AWS::EC2::InternetGateway"
     }, 
@@ -144,7 +186,7 @@
         "Tags": [
           {
             "Key": "Name", 
-            "Value": "Nat1"
+            "Value": { "Fn::Join" : [ "", [ "Nat1: ", {"Ref":"AvailabilityZone1"}]]}
           }
         ],
         "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
@@ -224,7 +266,7 @@
         "Tags": [
           {
             "Key": "Name", 
-            "Value": "Nat2"
+            "Value": { "Fn::Join" : [ "", [ "Nat2: ", {"Ref":"AvailabilityZone2"}]]}
           }
         ],
         "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
